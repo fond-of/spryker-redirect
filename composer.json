@@ -1,5 +1,5 @@
 {
-  "name": "fond-of-spryker/contentful",
+  "name": "fond-of-spryker/redirect",
   "description": "Redirects and add locale in url if missing.",
   "license": "MIT",
   "authors": [
