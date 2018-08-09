@@ -108,7 +108,7 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
-     * @param string $pathinfo
+     * @param string $pathinfo 
      *
      * @return bool
      */
