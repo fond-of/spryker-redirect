@@ -2,6 +2,7 @@
 
 namespace FondOfSpryker\Yves\Redirect\Router;
 
+use phpDocumentor\GraphViz\Exception;
 use Spryker\Yves\Application\Routing\AbstractRouter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -21,20 +22,14 @@ class RedirectRouter extends AbstractRouter
      */
     public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
     {
-        $currentStore = $this->getFactory()->getStoreClient()->getCurrentStore();
-        foreach ($currentStore->getAvailableLocaleIsoCodes() as $shortLocale => $isoLocale) {
-            if (self::LOCALE_BASE_ROUTE_NAME_PREFIX . $shortLocale == $name) {
-                return '/' . mb_substr($name, -2);
-            }
-        }
-
         throw new RouteNotFoundException();
     }
 
     /**
-     * @throws
-     *
      * @param string $pathinfo
+     *
+     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws \Symfony\Component\Routing\Exception\ResourceNotFoundException
      *
      * @return string[]
      */
@@ -47,7 +42,7 @@ class RedirectRouter extends AbstractRouter
 
         // redirect to start page if locale is not given on base route
         if ($this->isBaseRoute($pathinfo)) {
-            return $this->internalRedirectWithLocale();
+            return $this->redirectWithLocale();
         }
 
         // exclude api/error routes from redirects to locale and trailing slash
@@ -108,31 +103,23 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
-     * @param string $pathinfo 
+     * @param string $pathinfo
      *
      * @return bool
      */
     protected function hasValidLocalePrefix(string $pathinfo): bool
     {
-        $explodePath = explode('/', $pathinfo);
-        if (empty($explodePath) || empty($explodePath[1])) {
+        $explodePath = explode('/', trim($pathinfo, '/'));
+        if (count($explodePath) == 0) {
             return false;
         }
 
-        if (strlen($explodePath[1]) != 2) {
+        $uriLocale = $explodePath[0];
+        if (strlen($uriLocale) != 2) {
             return false;
         }
 
-        $currentStore = $this->getFactory()->getStoreClient()->getCurrentStore();
-        foreach ($currentStore->getAvailableLocaleIsoCodes() as $shortLocale => $isoLocale) {
-            if ($shortLocale != $explodePath[1]) {
-                continue;
-            }
-
-            return true;
-        }
-
-        return false;
+        return $this->isLocaleAvailableInCurrentStore($uriLocale);
     }
 
     /**
@@ -140,46 +127,81 @@ class RedirectRouter extends AbstractRouter
      */
     protected function redirectWithoutTrailingSlash(): array
     {
-        $data = [
-            'to_url' => substr($this->getRequest()->getUri(), 0, -1),
-            'status' => 301,
-        ];
+        $uri = substr($this->getRequest()->getSchemeAndHttpHost() . $this->getRequest()->getPathInfo(), 0, -1);
+        $uri = $this->appendQueryStringToUri($uri);
 
-        return $this->getFactory()->createRedirectResourceCreator()->createResource($this->getApplication(), $data);
+        return $this->createRedirect($uri);
     }
 
     /**
      * @return string[]
      */
-    protected function internalRedirectWithLocale(): array
+    protected function redirectWithLocale(): array
     {
-        $data = [
-            'path' => self::LOCALE_BASE_ROUTE_NAME_PREFIX . $this->createUrlLocalePartFromBrowserLanguage(),
-            'parameters' => [],
-            'status' => 301,
-        ];
+        $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale();
+        $uri = $this->appendQueryStringToUri($uri);
 
-        return $this->getFactory()->createRedirectInternalResourceCreator()->createResource($this->getApplication(), $data);
+        return $this->createRedirect($uri);
     }
 
     /**
+     * @param string $toUri
+     * @param int $statusCode
+     *
+     * @return string[]
+     */
+    protected function createRedirect(string $toUri, int $statusCode = 301): array
+    {
+        $data = ['to_url' => $toUri, 'status' => $statusCode];
+        return $this->getFactory()->createRedirectResourceCreator()->createResource($this->getApplication(), $data);
+    }
+
+    /**
+     * @param string $uri
+     *
      * @return string
      */
-    protected function createUrlLocalePartFromBrowserLanguage(): string
+    protected function appendQueryStringToUri(string $uri): string
     {
-        // default locale
-        $newLocale = $this->getDefaultLocale();
-
-        // detect browser locale
-        $browserLanguageDetection = $this->getFactory()->createBrowserDetectorLanguage()->getLanguage();
-        $currentStore = $this->getFactory()->getStoreClient()->getCurrentStore();
-
-        // if browser language detection
-        if (array_key_exists($browserLanguageDetection, $currentStore->getAvailableLocaleIsoCodes())) {
-            $newLocale = $browserLanguageDetection;
+        $queryString = $this->getRequest()->getQueryString();
+        if (is_string($queryString) && strlen($queryString) > 0) {
+            return $uri . '?' . $queryString;
         }
 
-        return $newLocale;
+        return $uri;
+    }
+
+    /**
+     * @param string $defaultLocale
+     *
+     * @return string
+     */
+    protected function getUriLocale(string $defaultLocale = 'en'): string
+    {
+        $browserLocale = $this->detectBrowserLocale();
+        if ($this->isLocaleAvailableInCurrentStore($browserLocale)) {
+            return $browserLocale;
+        }
+
+        return $defaultLocale;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return bool
+     */
+    protected function isLocaleAvailableInCurrentStore(string $locale): bool
+    {
+        return array_key_exists($locale, $this->getFactory()->getStoreClient()->getCurrentStore()->getAvailableLocaleIsoCodes());
+    }
+
+    /**
+     * @return null|string
+     */
+    protected function detectBrowserLocale(): ?string
+    {
+        return $this->getFactory()->createBrowserDetectorLanguage()->getLanguage();
     }
 
     /**
@@ -203,7 +225,7 @@ class RedirectRouter extends AbstractRouter
     /**
      * @return string
      */
-    protected function getDefaultLocale(): string
+    protected function getApplicationDefaultLocale(): string
     {
         return mb_substr($this->getApplication()['locale'], 0, 2);
     }
