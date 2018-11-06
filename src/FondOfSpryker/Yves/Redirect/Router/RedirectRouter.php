@@ -3,6 +3,7 @@
 namespace FondOfSpryker\Yves\Redirect\Router;
 
 use phpDocumentor\GraphViz\Exception;
+use Spryker\Shared\Kernel\Store;
 use Spryker\Yves\Application\Routing\AbstractRouter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -114,12 +115,7 @@ class RedirectRouter extends AbstractRouter
             return false;
         }
 
-        $uriLocale = $explodePath[0];
-        if (strlen($uriLocale) != 2) {
-            return false;
-        }
-
-        return $this->isLocaleAvailableInCurrentStore($uriLocale);
+        return $this->isLocaleAvailableInCurrentStore($explodePath[0]);
     }
 
     /**
@@ -134,11 +130,32 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
+     * @param string $fallbackRoutePrefixLocale
+     *
+     * @return string
+     */
+    protected function getDefaultStoreRouteLocalePrefix(string $fallbackRoutePrefixLocale = 'en'): string
+    {
+        $storeLocales = Store::getInstance()->getLocales();
+        if (! is_array($storeLocales)) {
+            return $fallbackRoutePrefixLocale;
+        }
+
+        $storeLocaleRoutePrefixes = array_keys($storeLocales);
+        if (! is_array($storeLocaleRoutePrefixes) || empty($storeLocaleRoutePrefixes)) {
+            return $storeLocaleRoutePrefixes;
+        }
+
+        return array_shift($storeLocaleRoutePrefixes);
+    }
+
+    /**
      * @return string[]
      */
     protected function redirectWithLocale(): array
     {
-        $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale();
+        $defaultLocale = $this->getDefaultStoreRouteLocalePrefix();
+        $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale($defaultLocale);
         $uri = $this->appendQueryStringToUri($uri);
 
         return $this->createRedirect($uri);
@@ -220,14 +237,6 @@ class RedirectRouter extends AbstractRouter
     protected function hasTrailingSlash(string $pathinfo): bool
     {
         return substr($pathinfo, -1) == '/';
-    }
-
-    /**
-     * @return string
-     */
-    protected function getApplicationDefaultLocale(): string
-    {
-        return mb_substr($this->getApplication()['locale'], 0, 2);
     }
 
     /**
