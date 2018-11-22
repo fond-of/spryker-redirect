@@ -2,11 +2,9 @@
 
 namespace FondOfSpryker\Yves\Redirect\Router;
 
-use phpDocumentor\GraphViz\Exception;
 use Spryker\Shared\Kernel\Store;
 use Spryker\Yves\Application\Routing\AbstractRouter;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
@@ -29,7 +27,6 @@ class RedirectRouter extends AbstractRouter
     /**
      * @param string $pathinfo
      *
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      * @throws \Symfony\Component\Routing\Exception\ResourceNotFoundException
      *
      * @return string[]
@@ -53,8 +50,7 @@ class RedirectRouter extends AbstractRouter
 
         // redirect to start page if locale is not given
         if ($this->hasValidLocalePrefix($pathinfo) === false) {
-            $notFound = new ResourceNotFoundException();
-            throw new NotFoundHttpException(sprintf('"%s" route not found', $pathinfo), $notFound);
+            return $this->redirectWithLocale($pathinfo);
         }
 
         // if path has trailing slash, cut the slash and redirect to this url.
@@ -137,12 +133,12 @@ class RedirectRouter extends AbstractRouter
     protected function getDefaultStoreRouteLocalePrefix(string $fallbackRoutePrefixLocale = 'en'): string
     {
         $storeLocales = Store::getInstance()->getLocales();
-        if (! is_array($storeLocales)) {
+        if (!is_array($storeLocales)) {
             return $fallbackRoutePrefixLocale;
         }
 
         $storeLocaleRoutePrefixes = array_keys($storeLocales);
-        if (! is_array($storeLocaleRoutePrefixes) || empty($storeLocaleRoutePrefixes)) {
+        if (!is_array($storeLocaleRoutePrefixes) || empty($storeLocaleRoutePrefixes)) {
             return $storeLocaleRoutePrefixes;
         }
 
@@ -150,15 +146,17 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
+     * @param string $additionalPath
+     *
      * @return string[]
      */
-    protected function redirectWithLocale(): array
+    protected function redirectWithLocale(string $additionalPath = ''): array
     {
         $defaultLocale = $this->getDefaultStoreRouteLocalePrefix();
         $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale($defaultLocale);
         $uri = $this->appendQueryStringToUri($uri);
 
-        return $this->createRedirect($uri);
+        return $this->createRedirect($uri . $additionalPath);
     }
 
     /**
