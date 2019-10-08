@@ -154,9 +154,9 @@ class RedirectRouter extends AbstractRouter
     {
         $defaultLocale = $this->getDefaultStoreRouteLocalePrefix();
         $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale($defaultLocale);
-        $uri = $this->appendQueryStringToUri($uri);
+        $uri = $this->appendQueryStringToUri($uri . $additionalPath);
 
-        return $this->createRedirect($uri . $additionalPath);
+        return $this->createRedirect($uri);
     }
 
     /**
