@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
  */
 class RedirectRouter extends AbstractRouter
 {
-    private const LOCALE_BASE_ROUTE_NAME_PREFIX = 'locale.switch.';
+    private const USER_DEFAULT_LOCALE_PREFIX = 'USER_DEFAULT_LOCALE_PREFIX';
 
     /**
      * @inheritdoc
@@ -111,7 +111,21 @@ class RedirectRouter extends AbstractRouter
             return false;
         }
 
-        return $this->isLocaleAvailableInCurrentStore($explodePath[0]);
+        $isLocaleAvailable = $this->isLocaleAvailableInCurrentStore($explodePath[0]);
+
+        if($isLocaleAvailable){
+            $this->setUserDefaultLocalePrefix($explodePath[0]);
+        }
+
+        return $isLocaleAvailable;
+    }
+
+    /**
+     * @param string $locale
+     */
+    protected function setUserDefaultLocalePrefix(string $locale): void
+    {
+        $this->getFactory()->getSessionClient()->set(self::USER_DEFAULT_LOCALE_PREFIX, $locale);
     }
 
     /**
@@ -156,6 +170,8 @@ class RedirectRouter extends AbstractRouter
         $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale($defaultLocale);
         $uri = $this->appendQueryStringToUri($uri . $additionalPath);
 
+        $redirect = $this->createRedirect($uri);
+
         return $this->createRedirect($uri);
     }
 
@@ -193,12 +209,21 @@ class RedirectRouter extends AbstractRouter
      */
     protected function getUriLocale(string $defaultLocale = 'en'): string
     {
-        $browserLocale = $this->detectBrowserLocale();
+        $browserLocale = $this->getUserDefaultLocalePrefix() ?? $this->detectBrowserLocale();
+
         if ($this->isLocaleAvailableInCurrentStore($browserLocale)) {
             return $browserLocale;
         }
 
         return $defaultLocale;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getUserDefaultLocalePrefix(): ?string
+    {
+        return $this->getFactory()->getSessionClient()->get(self::USER_DEFAULT_LOCALE_PREFIX);
     }
 
     /**
