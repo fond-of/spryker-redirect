@@ -68,7 +68,7 @@ class RedirectRouter extends AbstractRouter
      */
     protected function hasExceptions(string $pathinfo): bool
     {
-        $startingRouteExceptions = ['/payone', '/error', '/feed', '/_profiler', '/form'];
+        $startingRouteExceptions = ['/payone', '/feed', '/_profiler', '/form'];
         foreach ($startingRouteExceptions as $startingRouteException) {
             if ($this->pathStartsWith($pathinfo, $startingRouteException)) {
                 return true;
