@@ -6,6 +6,7 @@ use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use FondOfSpryker\Yves\Redirect\ResourceCreator\RedirectInternalResourceCreator;
 use FondOfSpryker\Yves\Redirect\ResourceCreator\RedirectResourceCreator;
 use Sinergi\BrowserDetector\Language;
+use Spryker\Client\Session\SessionClientInterface;
 use Spryker\Client\Store\StoreClientInterface;
 use Spryker\Yves\Kernel\AbstractFactory;
 
@@ -51,5 +52,15 @@ class RedirectFactory extends AbstractFactory
     public function getStoreClient(): StoreClientInterface
     {
         return $this->getProvidedDependency(RedirectDependencyProvider::CLIENT_STORE);
+    }
+
+    /**
+     * @throws
+     *
+     * @return \Spryker\Client\Session\SessionClientInterface
+     */
+    public function getSessionClient(): SessionClientInterface
+    {
+        return $this->getProvidedDependency(RedirectDependencyProvider::SESSION_STORE);
     }
 }
