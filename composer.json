@@ -21,7 +21,7 @@
     }
   ],
   "require": {
-    "php": ">=7.1",
+    "php": ">=7.2",
     "jaybizzle/crawler-detect": "1.2.64",
     "sinergi/browser-detector": "6.1.2"
   },
