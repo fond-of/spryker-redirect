@@ -2,9 +2,9 @@
 
 namespace FondOfSpryker\Yves\Redirect;
 
-use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use FondOfSpryker\Yves\Redirect\ResourceCreator\RedirectInternalResourceCreator;
 use FondOfSpryker\Yves\Redirect\ResourceCreator\RedirectResourceCreator;
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
 use Sinergi\BrowserDetector\Language;
 use Spryker\Client\Session\SessionClientInterface;
 use Spryker\Client\Store\StoreClientInterface;
@@ -45,8 +45,6 @@ class RedirectFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \Spryker\Client\Store\StoreClientInterface
      */
     public function getStoreClient(): StoreClientInterface
@@ -55,8 +53,6 @@ class RedirectFactory extends AbstractFactory
     }
 
     /**
-     * @throws
-     *
      * @return \Spryker\Client\Session\SessionClientInterface
      */
     public function getSessionClient(): SessionClientInterface

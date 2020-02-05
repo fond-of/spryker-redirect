@@ -7,7 +7,7 @@ use Spryker\Yves\Kernel\Controller\AbstractController;
 
 class RedirectController extends AbstractController
 {
-    const STORAGE_CACHE_STRATEGY = StorageConstants::STORAGE_CACHE_STRATEGY_INACTIVE;
+    public const STORAGE_CACHE_STRATEGY = StorageConstants::STORAGE_CACHE_STRATEGY_INACTIVE;
 
     /**
      * @param array $meta

@@ -16,7 +16,8 @@ class RedirectRouter extends AbstractRouter
     private const USER_DEFAULT_LOCALE_PREFIX = 'USER_DEFAULT_LOCALE_PREFIX';
 
     /**
-     * @inheritdoc
+     * @inheritDoc
+     *
      * @throws \Symfony\Component\Routing\Exception\RouteNotFoundException
      */
     public function generate($name, $parameters = [], $referenceType = self::ABSOLUTE_PATH)
@@ -113,7 +114,7 @@ class RedirectRouter extends AbstractRouter
 
         $isLocaleAvailable = $this->isLocaleAvailableInCurrentStore($explodePath[0]);
 
-        if($isLocaleAvailable){
+        if ($isLocaleAvailable) {
             $this->setUserDefaultLocalePrefix($explodePath[0]);
         }
 
@@ -122,6 +123,8 @@ class RedirectRouter extends AbstractRouter
 
     /**
      * @param string $locale
+     *
+     * @return void
      */
     protected function setUserDefaultLocalePrefix(string $locale): void
     {
@@ -184,6 +187,7 @@ class RedirectRouter extends AbstractRouter
     protected function createRedirect(string $toUri, int $statusCode = 301): array
     {
         $data = ['to_url' => $toUri, 'status' => $statusCode];
+
         return $this->getFactory()->createRedirectResourceCreator()->createResource($this->getApplication(), $data);
     }
 
@@ -219,7 +223,7 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     protected function getUserDefaultLocalePrefix(): ?string
     {
@@ -237,7 +241,7 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     protected function detectBrowserLocale(): ?string
     {
