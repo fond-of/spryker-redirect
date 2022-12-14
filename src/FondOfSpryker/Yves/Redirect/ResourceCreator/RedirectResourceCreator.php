@@ -2,7 +2,7 @@
 
 namespace FondOfSpryker\Yves\Redirect\ResourceCreator;
 
-use Silex\Application;
+use Spryker\Service\Container\ContainerInterface;
 use Spryker\Shared\Application\Communication\ControllerServiceBuilder;
 use Spryker\Yves\Kernel\BundleControllerAction;
 use Spryker\Yves\Kernel\ClassResolver\Controller\ControllerResolver;
@@ -19,12 +19,12 @@ class RedirectResourceCreator
     }
 
     /**
-     * @param \Silex\Application $application
+     * @param \Spryker\Service\Container\ContainerInterface $application
      * @param array $data
      *
      * @return array
      */
-    public function createResource(Application $application, array $data)
+    public function createResource(ContainerInterface $application, array $data)
     {
         $bundleControllerAction = new BundleControllerAction('Redirect', 'Redirect', 'redirect');
         $routeNameResolver = new BundleControllerActionRouteNameResolver($bundleControllerAction);

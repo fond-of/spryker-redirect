@@ -198,7 +198,7 @@ class RedirectRouter extends AbstractRouter
 
         return $this->getFactory()
             ->createRedirectResourceCreator()
-            ->createResource($this->getApplication(), $data);
+            ->createResource($this->getContainer(), $data);
     }
 
     /**
