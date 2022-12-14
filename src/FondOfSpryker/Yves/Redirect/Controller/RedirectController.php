@@ -7,6 +7,9 @@ use Spryker\Yves\Kernel\Controller\AbstractController;
 
 class RedirectController extends AbstractController
 {
+    /**
+     * @var string
+     */
     public const STORAGE_CACHE_STRATEGY = StorageConstants::STORAGE_CACHE_STRATEGY_INACTIVE;
 
     /**
@@ -18,7 +21,7 @@ class RedirectController extends AbstractController
     {
         return $this->redirectResponseExternal(
             $meta['to_url'],
-            $meta['status']
+            $meta['status'],
         );
     }
 
@@ -32,7 +35,7 @@ class RedirectController extends AbstractController
         return $this->redirectResponseInternal(
             $meta['path'],
             $meta['parameters'],
-            $meta['status']
+            $meta['status'],
         );
     }
 }

@@ -7,7 +7,14 @@ use Spryker\Yves\Kernel\Container;
 
 class RedirectDependencyProvider extends AbstractBundleDependencyProvider
 {
+    /**
+     * @var string
+     */
     public const CLIENT_STORE = 'CLIENT_STORE';
+
+    /**
+     * @var string
+     */
     public const SESSION_STORE = 'SESSION_STORE';
 
     /**

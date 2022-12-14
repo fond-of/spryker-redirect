@@ -21,17 +21,18 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
-    "jaybizzle/crawler-detect": "1.2.64",
-    "sinergi/browser-detector": "6.1.4"
+    "php": ">=7.3",
+    "jaybizzle/crawler-detect": "^1.2.0",
+    "sinergi/browser-detector": "^6.1.0",
+    "spryker/store": "^1.12.0",
+    "spryker/session": "^4.4.0",
+    "spryker/application": "^3.18.0"
   },
   "require-dev": {
-    "spryker/code-sniffer": "^0.17.14",
-    "codeception/codeception": "^5.0.0",
-    "mikey179/vfsstream": "^1.6",
-    "phpro/grumphp": "^v1.14.0",
-    "sebastian/phpcpd": "^6.0.0",
-    "php-coveralls/php-coveralls": "^2.0"
+    "fond-of-codeception/spryker": "^1.0",
+    "spryker/code-sniffer": "*",
+    "spryker-sdk/phpstan-spryker": "*",
+    "spryker/silex": "*"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
@@ -42,7 +43,9 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "FondOfSpryker\\": "tests/FondOfSpryker/"
+      "FondOfSpryker\\": "tests/FondOfSpryker/",
+      "Generated\\": "src/Generated/",
+      "Orm\\Zed\\": "src/Orm/Zed/"
     }
   },
   "config": {

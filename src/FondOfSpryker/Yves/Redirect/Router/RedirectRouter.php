@@ -13,6 +13,9 @@ use Symfony\Component\Routing\Exception\RouteNotFoundException;
  */
 class RedirectRouter extends AbstractRouter
 {
+    /**
+     * @var string
+     */
     private const USER_DEFAULT_LOCALE_PREFIX = 'USER_DEFAULT_LOCALE_PREFIX';
 
     /**
@@ -30,7 +33,7 @@ class RedirectRouter extends AbstractRouter
      *
      * @throws \Symfony\Component\Routing\Exception\ResourceNotFoundException
      *
-     * @return string[]
+     * @return array<string>
      */
     public function match($pathinfo): array
     {
@@ -108,7 +111,9 @@ class RedirectRouter extends AbstractRouter
     protected function hasValidLocalePrefix(string $pathinfo): bool
     {
         $explodePath = explode('/', trim($pathinfo, '/'));
-        if (count($explodePath) == 0) {
+
+        // @phpstan-ignore-next-line
+        if (count($explodePath) === 0) {
             return false;
         }
 
@@ -132,7 +137,7 @@ class RedirectRouter extends AbstractRouter
     }
 
     /**
-     * @return string[]
+     * @return array<string>
      */
     protected function redirectWithoutTrailingSlash(): array
     {
@@ -150,13 +155,15 @@ class RedirectRouter extends AbstractRouter
     protected function getDefaultStoreRouteLocalePrefix(string $fallbackRoutePrefixLocale = 'en'): string
     {
         $storeLocales = Store::getInstance()->getLocales();
+
         if (!is_array($storeLocales)) {
             return $fallbackRoutePrefixLocale;
         }
 
         $storeLocaleRoutePrefixes = array_keys($storeLocales);
-        if (!is_array($storeLocaleRoutePrefixes) || empty($storeLocaleRoutePrefixes)) {
-            return $storeLocaleRoutePrefixes;
+
+        if (!$storeLocaleRoutePrefixes) {
+            return $fallbackRoutePrefixLocale;
         }
 
         return array_shift($storeLocaleRoutePrefixes);
@@ -165,15 +172,13 @@ class RedirectRouter extends AbstractRouter
     /**
      * @param string $additionalPath
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function redirectWithLocale(string $additionalPath = ''): array
     {
         $defaultLocale = $this->getDefaultStoreRouteLocalePrefix();
         $uri = $this->getRequest()->getSchemeAndHttpHost() . '/' . $this->getUriLocale($defaultLocale);
         $uri = $this->appendQueryStringToUri($uri . $additionalPath);
-
-        $redirect = $this->createRedirect($uri);
 
         return $this->createRedirect($uri);
     }
@@ -182,13 +187,18 @@ class RedirectRouter extends AbstractRouter
      * @param string $toUri
      * @param int $statusCode
      *
-     * @return string[]
+     * @return array<string>
      */
     protected function createRedirect(string $toUri, int $statusCode = 301): array
     {
-        $data = ['to_url' => $toUri, 'status' => $statusCode];
+        $data = [
+            'to_url' => $toUri,
+            'status' => $statusCode
+        ];
 
-        return $this->getFactory()->createRedirectResourceCreator()->createResource($this->getApplication(), $data);
+        return $this->getFactory()
+            ->createRedirectResourceCreator()
+            ->createResource($this->getApplication(), $data);
     }
 
     /**
