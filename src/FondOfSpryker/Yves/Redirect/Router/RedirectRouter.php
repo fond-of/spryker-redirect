@@ -193,7 +193,7 @@ class RedirectRouter extends AbstractRouter
     {
         $data = [
             'to_url' => $toUri,
-            'status' => $statusCode
+            'status' => $statusCode,
         ];
 
         return $this->getFactory()
